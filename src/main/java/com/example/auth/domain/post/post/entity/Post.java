@@ -6,6 +6,7 @@ import com.example.auth.global.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,5 +26,17 @@ public class Post extends BaseTime {
             mappedBy = "post",
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true
     )
-    private List<Comment> comments;
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>();
+
+    public void addComment(Member author, String content) {
+        Comment comment = Comment
+                .builder()
+                .post(this)
+                .author(author)
+                .content(content)
+                .build();
+
+        comments.add(comment);
+    }
 }
