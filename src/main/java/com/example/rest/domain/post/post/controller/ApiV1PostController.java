@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -126,24 +127,17 @@ public class ApiV1PostController {
 
     private Member getAuthenticatedActor() {
         String authorizationValue = request.getHeader("Authorization");
+        String password2 = authorizationValue.substring("Bearer".length());
+        Optional<Member> opActor = memberService.findByPassword2(password2);
 
-        // Bearer 4/user11234
-        String credentials = authorizationValue.substring("Bearer".length());
-
-        String[] credentialsBits = credentials.split("/");
-        long authorId = Long.parseLong(credentialsBits[0]);
-        String password = credentialsBits[1];
-
-        Member actor = memberService.findById(authorId).get();
-
-        if (!actor.getPassword2().equals(password)) {
+        if (opActor.isEmpty()) {
             throw new ServiceException(
                     "401-1",
-                    "비밀번호가 일치하지 않습니다."
+                    "잘못된 비밀번호 입니다."
             );
         }
 
-        return actor;
+        return opActor.get();
     }
 
 }

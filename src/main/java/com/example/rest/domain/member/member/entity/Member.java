@@ -22,7 +22,7 @@ public class Member extends BaseTime {
     @Column(length = 100)
     private String password;
 
-    @Column(length = 100)
+    @Column(length = 100, unique = true)
     private String password2;
 
     @Column(length = 100)
