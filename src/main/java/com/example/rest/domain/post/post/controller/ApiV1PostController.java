@@ -67,7 +67,9 @@ public class ApiV1PostController {
 
     record ModifyReqBody(
             @NotBlank @Length(min = 3) String title,
-            @NotBlank @Length(min = 3) String content
+            @NotBlank @Length(min = 3) String content,
+            @NotNull Long authorId,
+            @NotBlank @Length(min = 3) String password
     ) {
     }
 
@@ -76,7 +78,24 @@ public class ApiV1PostController {
             @PathVariable long id,
             @RequestBody @Valid ModifyReqBody body
     ) {
+        Member actor = memberService.findById(body.authorId()).get();
+
+        if (!actor.getPassword().equals(body.password())) {
+            throw new ServiceException(
+                    "401-1",
+                    "비밀번호가 일치하지 않습니다."
+            );
+        }
+
         Post post = postService.getItem(id).get();
+
+        if (post.getAuthor().getId() != body.authorId()) {
+            throw new ServiceException(
+                    "403-1",
+                    "자신이 작성한 글만 수정 가능합니다."
+            );
+        }
+
         postService.modify(post, body.title(), body.content());
 
         return new RsData<>(
