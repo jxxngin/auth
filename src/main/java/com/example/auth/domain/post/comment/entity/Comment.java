@@ -36,17 +36,31 @@ public class Comment extends BaseTime {
             );
         }
 
-        if (actor.isAdmin()) {
-            return;
-        }
+        if (actor.isAdmin()) return;
 
-        if (actor.equals(this.author)) {
-            return;
-        }
+        if (actor.equals(this.author)) return;
 
         throw new ServiceException(
                 "403-1",
                 "자신이 작성한 댓글만 수정 가능 합니다."
+        );
+    }
+
+    public void canDelete(Member actor) {
+        if (actor == null) {
+            throw new ServiceException(
+                    "401-1",
+                    "인증 정보가 없습니다."
+            );
+        }
+
+        if (actor.isAdmin()) return;
+
+        if (actor.equals(this.author)) return;
+
+        throw new ServiceException(
+                "403-1",
+                "자신이 작성한 댓글만 삭제 가능합니다."
         );
     }
 
