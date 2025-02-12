@@ -57,7 +57,8 @@ public class ApiV1PostController {
     @DeleteMapping("/{id}")
     public RsData<Void> delete(
             @PathVariable long id,
-            @RequestHeader @NotBlank String credentials
+            @RequestHeader("Authorization")
+            @NotBlank String credentials
     ) {
         Member actor = getAuthenticatedActor(credentials);
         Post post = postService.getItem(id).get();
@@ -87,7 +88,8 @@ public class ApiV1PostController {
     public RsData<Void> modify(
             @PathVariable long id,
             @RequestBody @Valid ModifyReqBody body,
-            @RequestHeader @NotBlank String credentials
+            @RequestHeader("Authorization")
+            @NotBlank String credentials
     ) {
         Member actor = getAuthenticatedActor(credentials);
         Post post = postService.getItem(id).get();
@@ -117,7 +119,8 @@ public class ApiV1PostController {
     @PostMapping
     public RsData<PostDto> write(
             @RequestBody @Valid WriteReqBody body,
-            @RequestHeader @NotBlank String credentials
+            @RequestHeader("Authorization")
+            @NotBlank String credentials
     ) {
         Member actor = getAuthenticatedActor(credentials);
         Post post = postService.write(actor, body.title(), body.content());
@@ -130,6 +133,9 @@ public class ApiV1PostController {
     }
 
     private Member getAuthenticatedActor(String credentials) {
+        // Bearer 4/user11234
+        credentials = credentials.substring("Bearer".length());
+
         String[] credentialsBits = credentials.split("/");
         long authorId = Long.parseLong(credentialsBits[0]);
         String password = credentialsBits[1];
