@@ -127,8 +127,8 @@ public class ApiV1PostController {
 
     private Member getAuthenticatedActor() {
         String authorizationValue = request.getHeader("Authorization");
-        String password2 = authorizationValue.substring("Bearer".length());
-        Optional<Member> opActor = memberService.findByPassword2(password2);
+        String apiKey = authorizationValue.substring("Bearer".length());
+        Optional<Member> opActor = memberService.findByApiKey(apiKey);
 
         if (opActor.isEmpty()) {
             throw new ServiceException(
