@@ -48,4 +48,8 @@ public class PostService {
         post.setContent(content);
     }
 
+    public void flush() {
+        postRepository.flush();
+    }
+
 }

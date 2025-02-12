@@ -68,7 +68,7 @@ public class ApiV1CommentController {
         Member actor = rq.getAuthenticatedActor();
         Comment comment = _write(postId, actor, reqBody.content());
 
-        em.flush();
+        postService.flush();
 
         return new RsData<>(
                 "201-1",
