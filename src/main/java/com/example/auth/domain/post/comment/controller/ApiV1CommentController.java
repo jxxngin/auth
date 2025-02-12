@@ -8,7 +8,10 @@ import com.example.auth.domain.post.post.service.PostService;
 import com.example.auth.global.Rq;
 import com.example.auth.global.dto.RsData;
 import com.example.auth.global.exception.ServiceException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +20,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts/{postId}/comments")
 public class ApiV1CommentController {
+
+    @Autowired
+    @Lazy
+    private ApiV1CommentController self;
 
     private final PostService postService;
     private final Rq rq;
@@ -59,7 +66,16 @@ public class ApiV1CommentController {
             @RequestBody WriteReqBody reqBody
     ) {
         Member actor = rq.getAuthenticatedActor();
+        Comment comment = self._write(postId, actor, reqBody.content());
 
+        return new RsData<>(
+                "201-1",
+                "%d번 댓글 작성이 완료되었습니다.".formatted(comment.getId())
+        );
+    }
+
+    @Transactional
+    public Comment _write(long postId, Member actor, String content) {
         Post post = postService.getItem(postId).orElseThrow(
                 () -> new ServiceException(
                         "404-1",
@@ -67,12 +83,9 @@ public class ApiV1CommentController {
                 )
         );
 
-        Comment comment = post.addComment(actor, reqBody.content());
+        Comment comment = post.addComment(actor, content);
 
-        return new RsData<>(
-                "201-1",
-                "%d번 댓글 작성이 완료되었습니다.".formatted(comment.getId())
-        );
+        return comment;
     }
 
 }
