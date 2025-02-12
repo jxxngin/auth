@@ -55,4 +55,8 @@ public class Post extends BaseTime {
                 );
     }
 
+    public void deleteComment(Comment comment) {
+        comments.remove(comment);
+    }
+
 }
