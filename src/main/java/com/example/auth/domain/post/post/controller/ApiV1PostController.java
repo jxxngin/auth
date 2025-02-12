@@ -1,14 +1,12 @@
 package com.example.auth.domain.post.post.controller;
 
 import com.example.auth.domain.member.member.entity.Member;
-import com.example.auth.domain.member.member.service.MemberService;
 import com.example.auth.domain.post.post.dto.PostDto;
 import com.example.auth.domain.post.post.entity.Post;
 import com.example.auth.domain.post.post.service.PostService;
 import com.example.auth.global.Rq;
 import com.example.auth.global.dto.RsData;
 import com.example.auth.global.exception.ServiceException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +14,6 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -61,9 +58,7 @@ public class ApiV1PostController {
         Member actor = rq.getAuthenticatedActor();
         Post post = postService.getItem(id).get();
 
-        if (post.getAuthor().getId() != actor.getId()) {
-            throw new ServiceException("403-1", "자신이 작성한 글만 삭제 가능합니다.");
-        }
+        post.canDelete(actor);
 
         postService.delete(post);
 
@@ -90,7 +85,10 @@ public class ApiV1PostController {
             throw new ServiceException("403-1", "자신이 작성한 글만 수정 가능합니다.");
         }
 
+        post.canModify(actor);
+
         postService.modify(post, body.title(), body.content());
+
         return new RsData<>(
                 "200-1",
                 "%d번 글 수정이 완료되었습니다.".formatted(id),
